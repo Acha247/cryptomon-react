@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI/CD for React Application
 
 on:
   push:
@@ -54,12 +54,6 @@ jobs:
           context: .
           push: true
           tags: mydockerhub/myimage:${{ github.sha }}
-
-      - name: Deploy Docker image to Kubernetes
-        uses: appleboy/kubectl-action@master
-        with:
-          args: set image deployment/myapp myapp=mydockerhub/myimage:${{ github.sha }}
-
   parallelize-builds:
     needs: build
     runs-on: self-hosted
@@ -89,3 +83,31 @@ jobs:
         run: |
           npm run build --if-present
           npm test
+
+  deploy-to-dockerhub:
+    needs: build
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: mydockerhub/myimage:${{ github.sha }}  
+
+      - name: Push image to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push image to DockerHub
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: mydockerhub/myimage:${{ github.sha }}
