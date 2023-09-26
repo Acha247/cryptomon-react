@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-runner
+    runs-on: self-hosted
 
     strategy:
       matrix:
@@ -42,7 +42,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
@@ -62,7 +62,7 @@ jobs:
 
   parallelize-builds:
     needs: build
-    runs-on: self-runner
+    runs-on: self-hosted
 
     strategy:
       matrix:
